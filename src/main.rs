@@ -10,6 +10,6 @@ fn main() {
         .nth(1)
         .expect("The command to perform was not given!");
     println!("{command}");
-    task_tracker::add();
-    println!("{:?}", Task::new(1, String::from("buy groceries"), Status::Todo));
+    let task = Task::new(1, String::from("buy groceries"), Status::Todo);
+    println!("{}", task.to_json());
 }
