@@ -1,8 +1,9 @@
 use std::fmt::Display;
 
 use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Status {
     Todo,
     InProgress,
@@ -20,7 +21,7 @@ impl Display for Status {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Task {
     id: usize,
     description: String,
@@ -48,11 +49,7 @@ impl Task {
         self.status = new_status;
     }
 
-    pub fn to_json(&self) -> String {
-        let json = format!(
-            "{{\nid:{},\ndescription:{},\nstatus:{},\ncreated_at:{},\nupdated_at:{}\n}}",
-            self.id, self.description, self.status, self.created_at, self.updated_at
-        );
-        json
+    pub fn get_id(&self) -> usize {
+        self.id
     }
 }
