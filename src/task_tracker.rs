@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{self, Read, Write};
 
-use crate::task::Task;
+use crate::task::{Status, Task};
 use serde_json;
 
 fn get_tasks() -> io::Result<Vec<Task>> {
@@ -63,5 +63,19 @@ pub fn update_task(id: usize, new_description: String) -> io::Result<()> {
 
     write_tasks_to_file(&tasks)?;
 
+    Ok(())
+}
+
+pub fn update_status(id: usize, new_status: Status) -> io::Result<()> {
+    let mut tasks = get_tasks()?;
+
+    for task in &mut tasks {
+        if task.get_id() == id {
+            task.update_status(new_status);
+            break;
+        }
+    }
+
+    write_tasks_to_file(&tasks)?;
     Ok(())
 }

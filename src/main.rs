@@ -4,6 +4,8 @@ use std::process;
 mod task;
 mod task_tracker;
 
+use task::Status;
+
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
@@ -20,6 +22,12 @@ fn main() -> std::io::Result<()> {
         Command::Update(id_to_update, new_description) => {
             task_tracker::update_task(id_to_update, new_description)?;
         }
+        Command::MarkDone(id) => {
+            task_tracker::update_status(id, Status::Done)?;
+        }
+        Command::MarkInProgress(id) => {
+            task_tracker::update_status(id, Status::InProgress)?;
+        }
     }
 
     Ok(())
@@ -28,6 +36,8 @@ fn main() -> std::io::Result<()> {
 enum Command {
     Add(String),
     Update(usize, String),
+    MarkInProgress(usize),
+    MarkDone(usize),
 }
 
 impl Command {
@@ -53,6 +63,30 @@ impl Command {
                 }
             } else {
                 Err("Usage: task-cli update <id> <new_description>")
+            }
+        } else if args[1] == "mark-in-progress" {
+            if let Some(id) = args.get(2) {
+                match id.parse::<usize>() {
+                    Ok(id) => {
+                        let command = Command::MarkInProgress(id);
+                        Ok(command)
+                    }
+                    Err(_) => Err("Unable to parse provided id"),
+                }
+            } else {
+                Err("The task id is not provided")
+            }
+        } else if args[1] == "mark-done" {
+            if let Some(id) = args.get(2) {
+                match id.parse::<usize>() {
+                    Ok(id) => {
+                        let command = Command::MarkDone(id);
+                        Ok(command)
+                    }
+                    Err(_) => Err("Unable to parse provided id"),
+                }
+            } else {
+                Err("The task id is not provided")
             }
         } else {
             Err("The provided arguments are invalid")
