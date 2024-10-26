@@ -31,11 +31,11 @@ pub struct Task {
 }
 
 impl Task {
-    pub fn new(id: usize, description: String, status: Status) -> Task {
+    pub fn new(id: usize, description: String) -> Task {
         Task {
             id,
             description,
-            status,
+            status: Status::Todo,
             created_at: Local::now(),
             updated_at: Local::now(),
         }

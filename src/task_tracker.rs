@@ -35,13 +35,19 @@ fn write_tasks_to_file(tasks: &Vec<Task>) -> io::Result<()> {
     Ok(())
 }
 
-pub fn add_task(task: Task) -> io::Result<usize> {
+pub fn add_task(description: String) -> io::Result<usize> {
     let mut tasks = get_tasks()?;
-    let id = task.get_id();
 
-    tasks.push(task);
+    let last_task_id = match tasks.last() {
+        Some(task) => task.get_id(),
+        None => 0,
+    };
+    let new_task = Task::new(last_task_id + 1, description);
+    let id = new_task.get_id();
 
+    tasks.push(new_task);
     write_tasks_to_file(&tasks)?;
+
     Ok(id)
 }
 
