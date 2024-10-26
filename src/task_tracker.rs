@@ -4,7 +4,7 @@ use std::io::{self, Read, Write};
 use crate::task::Task;
 use serde_json;
 
-pub fn get_tasks() -> io::Result<Vec<Task>> {
+fn get_tasks() -> io::Result<Vec<Task>> {
     let file = File::open("tasks.json");
     match file {
         Ok(mut tasks_file) => {
@@ -24,18 +24,38 @@ pub fn get_tasks() -> io::Result<Vec<Task>> {
     }
 }
 
+fn write_tasks_to_file(tasks: &Vec<Task>) -> io::Result<()> {
+    let mut file = File::options()
+        .create(true)
+        .write(true)
+        .open("tasks.json")?;
+    let tasks_json = serde_json::to_vec(tasks)?;
+
+    file.write(&tasks_json)?;
+    Ok(())
+}
+
 pub fn add_task(task: Task) -> io::Result<usize> {
     let mut tasks = get_tasks()?;
     let id = task.get_id();
 
     tasks.push(task);
 
-    let mut file = File::options()
-        .create(true)
-        .write(true)
-        .open("tasks.json")?;
-    let tasks_json = serde_json::to_vec(&tasks)?;
-
-    file.write(&tasks_json)?;
+    write_tasks_to_file(&tasks)?;
     Ok(id)
+}
+
+pub fn update_task(id: usize, new_description: String) -> io::Result<()> {
+    let mut tasks = get_tasks()?;
+
+    for task in &mut tasks {
+        if task.get_id() == id {
+            task.update_description(new_description);
+            break;
+        }
+    }
+
+    write_tasks_to_file(&tasks)?;
+
+    Ok(())
 }
