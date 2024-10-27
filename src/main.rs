@@ -40,7 +40,6 @@ fn main() -> std::io::Result<()> {
                     }
                 }
                 None => {
-                    println!("displaying");
                     for task in &tasks {
                         println!("{}", task);
                     }
