@@ -5,6 +5,7 @@ mod task;
 mod task_tracker;
 
 use task::Status;
+use task_tracker::list_all_tasks;
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -28,6 +29,24 @@ fn main() -> std::io::Result<()> {
         Command::MarkInProgress(id) => {
             task_tracker::update_status(id, Status::InProgress)?;
         }
+        Command::ListAllTasks(provided_status) => {
+            let tasks = list_all_tasks()?;
+            match provided_status {
+                Some(status) => {
+                    for task in &tasks {
+                        if task.compare_status(&status) {
+                            println!("{}", task);
+                        }
+                    }
+                }
+                None => {
+                    println!("displaying");
+                    for task in &tasks {
+                        println!("{}", task);
+                    }
+                }
+            }
+        }
     }
 
     Ok(())
@@ -38,6 +57,7 @@ enum Command {
     Update(usize, String),
     MarkInProgress(usize),
     MarkDone(usize),
+    ListAllTasks(Option<Status>),
 }
 
 impl Command {
@@ -87,6 +107,20 @@ impl Command {
                 }
             } else {
                 Err("The task id is not provided")
+            }
+        } else if args[1] == "list" {
+            if let Some(status) = args.get(2) {
+                if status == "done" {
+                    Ok(Command::ListAllTasks(Some(Status::Done)))
+                } else if status == "in-progress" {
+                    Ok(Command::ListAllTasks(Some(Status::InProgress)))
+                } else if status == "todo" {
+                    Ok(Command::ListAllTasks(Some(Status::Todo)))
+                } else {
+                    Err("the 2nd argument has to be a status - either \"done\", \"in-progress\" or \"todo\"")
+                }
+            } else {
+                Ok(Command::ListAllTasks(None))
             }
         } else {
             Err("The provided arguments are invalid")

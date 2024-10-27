@@ -11,15 +11,11 @@ fn get_tasks() -> io::Result<Vec<Task>> {
             let mut buffer = Vec::new();
             tasks_file.read_to_end(&mut buffer)?;
             let tasks: Vec<Task> = serde_json::from_slice(&buffer)?;
-            return Ok(tasks);
+            Ok(tasks)
         }
         Err(error) => match error.kind() {
-            io::ErrorKind::NotFound => {
-                return Ok(Vec::new());
-            }
-            _ => {
-                return Err(error);
-            }
+            io::ErrorKind::NotFound => Ok(Vec::new()),
+            _ => Err(error),
         },
     }
 }
@@ -78,4 +74,9 @@ pub fn update_status(id: usize, new_status: Status) -> io::Result<()> {
 
     write_tasks_to_file(&tasks)?;
     Ok(())
+}
+
+pub fn list_all_tasks() -> io::Result<Vec<Task>> {
+    let tasks = get_tasks()?;
+    Ok(tasks)
 }
